@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevTasker - Software Engineer Task Manager</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --border-radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--secondary);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-form {
+            background-color: var(--light);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        
+        input, select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .task-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .task-item {
+            background-color: white;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .task-item.high-priority {
+            border-left-color: var(--danger);
+        }
+        
+        .task-item.medium-priority {
+            border-left-color: var(--warning);
+        }
+        
+        .task-item.low-priority {
+            border-left-color: var(--success);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .task-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .task-metadata {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .task-tag {
+            background-color: var(--light);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .task-actions button {
+            width: auto;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .delete-btn {
+            background-color: var(--danger);
+        }
+        
+        .edit-btn {
+            background-color: var(--warning);
+        }
+        
+        .complete-btn {
+            background-color: var(--success);
+        }
+        
+        .completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+        }
+        
+        .filter-section h3 {
+            margin-bottom: 10px;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .timeline-container {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timeline {
+            display: flex;
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+        
+        .timeline-day {
+            min-width: 150px;
+            border-right: 1px solid #ddd;
+            padding: 0 10px;
+        }
+        
+        .timeline-day-header {
+            text-align: center;
+            padding: 5px;
+            margin-bottom: 10px;
+            background-color: var(--light);
+            border-radius: 4px;
+        }
+        
+        .timeline-task {
+            padding: 8px;
+            margin-bottom: 8px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .task-description {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+
+        .clock-container {
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+        .clock-container span {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DevTasker</h1>
+            <div class="clock-container">
+                <span id="current-date"></span>
+                <span id="current-time"></span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="filter-section">
+                    <h3>Filters</h3>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="show-all" checked>
+                            <label for="show-all">All Tasks</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="show-today">
+                            <label for="show-today">Due Today</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="show-upcoming">
+                            <label for="show-upcoming">Upcoming</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="show-completed">
+                            <label for="show-completed">Completed</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Projects</h3>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="project-all" checked>
+                            <label for="project-all">All Projects</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="project1">
+                            <label for="project1">Frontend Refactoring</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="project2">
+                            <label for="project2">API Development</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="project3">
+                            <label for="project3">DevOps Pipeline</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="project4">
+                            <label for="project4">Bug Fixes</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Priority</h3>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="priority-all" checked>
+                            <label for="priority-all">All Priorities</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="priority-high">
+                            <label for="priority-high">High</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="priority-medium">
+                            <label for="priority-medium">Medium</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="priority-low">
+                            <label for="priority-low">Low</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="task-container">
+                    <div class="task-form">
+                        <h2>Add New Task</h2>
+                        <form id="add-task-form">
+                            <input type="text" id="task-title" placeholder="Task title" required>
+                            <textarea id="task-description" placeholder="Task description" rows="3"></textarea>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;">
+                                    <label for="task-project">Project</label>
+                                    <select id="task-project">
+                                        <option value="Frontend Refactoring">Frontend Refactoring</option>
+                                        <option value="API Development">API Development</option>
+                                        <option value="DevOps Pipeline">DevOps Pipeline</option>
+                                        <option value="Bug Fixes">Bug Fixes</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label for="task-priority">Priority</label>
+                                    <select id="task-priority">
+                                        <option value="low">Low</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;">
+                                    <label for="task-start-date">Start Date</label>
+                                    <input type="date" id="task-start-date">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label for="task-due-date">Due Date</label>
+                                    <input type="date" id="task-due-date">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="task-estimated-hours">Estimated Hours</label>
+                                <input type="number" id="task-estimated-hours" min="0" step="0.5" placeholder="Hours">
+                            </div>
+
+                            <div>
+                                <label for="task-dependencies">Dependencies (Task IDs, comma separated)</label>
+                                <input type="text" id="task-dependencies" placeholder="e.g. 1, 3, 5">
+                            </div>
+
+                            <button type="submit">Add Task</button>
+                        </form>
+                    </div>
+
+                    <h2>My Tasks</h2>
+                    <div class="task-list">
+                        <!-- Sample Tasks -->
+                        <div class="task-item high-priority">
+                            <div class="task-header">
+                                <div class="task-title">Fix authentication bug</div>
+                                <div class="task-actions">
+                                    <button class="edit-btn">Edit</button>
+                                    <button class="complete-btn">Complete</button>
+                                    <button class="delete-btn">Delete</button>
+                                </div>
+                            </div>
+                            <div class="task-metadata">
+                                <span class="task-tag">Bug Fixes</span>
+                                <span class="task-tag">High Priority</span>
+                                <span class="task-tag due-date">Due: Apr 5, 2025</span>
+                                <span class="task-tag">Est: 3h</span>
+                            </div>
+                            <div class="task-description">
+                                Users are being logged out randomly. Need to fix token refresh mechanism.
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 30%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item medium-priority">
+                            <div class="task-header">
+                                <div class="task-title">Implement user profile API</div>
+                                <div class="task-actions">
+                                    <button class="edit-btn">Edit</button>
+                                    <button class="complete-btn">Complete</button>
+                                    <button class="delete-btn">Delete</button>
+                                </div>
+                            </div>
+                            <div class="task-metadata">
+                                <span class="task-tag">API Development</span>
+                                <span class="task-tag">Medium Priority</span>
+                                <span class="task-tag due-date">Due: Apr 12, 2025</span>
+                                <span class="task-tag">Est: 6h</span>
+                            </div>
+                            <div class="task-description">
+                                Create REST endpoints for user profile CRUD operations.
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 50%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item low-priority">
+                            <div class="task-header">
+                                <div class="task-title">Refactor CSS architecture</div>
+                                <div class="task-actions">
+                                    <button class="edit-btn">Edit</button>
+                                    <button class="complete-btn">Complete</button>
+                                    <button class="delete-btn">Delete</button>
+                                </div>
+                            </div>
+                            <div class="task-metadata">
+                                <span class="task-tag">Frontend Refactoring</span>
+                                <span class="task-tag">Low Priority</span>
+                                <span class="task-tag due-date">Due: Apr 20, 2025</span>
+                                <span class="task-tag">Est: 10h</span>
+                            </div>
+                            <div class="task-description">
+                                Convert legacy CSS to a component-based approach using CSS modules.
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 10%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-container">
+                    <h2>Timeline View</h2>
+                    <div class="timeline" id="timeline-view">
+                        <!-- Timeline will be generated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to update the current date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Update date display
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Update time display
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        
+        // Initial update
+        updateDateTime();
+        
+        // Update every second
+        setInterval(updateDateTime, 1000);
+
+        // Function to generate timeline view based on current date
+        function generateTimeline() {
+            const timelineContainer = document.getElementById('timeline-view');
+            timelineContainer.innerHTML = ''; // Clear existing content
+            
+            const today = new Date();
+            
+            // Generate 7 days from today
+            for (let i = 0; i < 7; i++) {
+                const date = new Date();
+                date.setDate(today.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'timeline-day';
+                
+                const headerElement = document.createElement('div');
+                headerElement.className = 'timeline-day-header';
+                headerElement.textContent = date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                dayElement.appendChild(headerElement);
+                
+                // Add sample tasks for demo purposes
+                if (i === 0) { // Today
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'timeline-task';
+                    taskElement.textContent = 'Code review: PR #137';
+                    dayElement.appendChild(taskElement);
+                }
+                
+                if (i === 1) { // Tomorrow
+                    const taskElement1 = document.createElement('div');
+                    taskElement1.className = 'timeline-task';
+                    taskElement1.textContent = 'Fix authentication bug';
+                    dayElement.appendChild(taskElement1);
+                    
+                    const taskElement2 = document.createElement('div');
+                    taskElement2.className = 'timeline-task';
+                    taskElement2.textContent = 'API meeting (2pm)';
+                    dayElement.appendChild(taskElement2);
+                }
+                
+                if (i === 3) { // 3 days from now
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'timeline-task';
+                    taskElement.textContent = 'Sprint planning';
+                    dayElement.appendChild(taskElement);
+                }
+                
+                if (i === 4) { // 4 days from now
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'timeline-task';
+                    taskElement.textContent = 'Continue API work';
+                    dayElement.appendChild(taskElement);
+                }
+                
+                if (i === 6) { // 6 days from now
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'timeline-task';
+                    taskElement.textContent = 'Team demo';
+                    dayElement.appendChild(taskElement);
+                }
+                
+                timelineContainer.appendChild(dayElement);
+            }
+        }
+        
+        // Initial generation of timeline
+        generateTimeline();
+
+        // Update dates for demo purposes
+        function updateDueDates() {
+            const today = new Date();
+            
+            // Update "Due Today" filter
+            document.getElementById('show-today').addEventListener('change', function() {
+                const dueTodayItems = document.querySelectorAll('.task-item');
+                dueTodayItems.forEach(item => {
+                    const dueDateElement = item.querySelector('.due-date');
+                    if (dueDateElement) {
+                        const dueDate = dueDateElement.textContent.replace('Due: ', '');
+                        const dueDateTime = new Date(dueDate);
+                        
+                        if (this.checked) {
+                            if (dueDateTime.toDateString() === today.toDateString()) {
+                                item.style.display = 'block';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        } else {
+                            item.style.display = 'block';
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Call the update function
+        updateDueDates();
+
+        // Basic functionality for demo purposes
+        document.querySelectorAll('.complete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const taskItem = this.closest('.task-item');
+                taskItem.classList.toggle('completed');
+                if (taskItem.classList.contains('completed')) {
+                    this.textContent = 'Reopen';
+                } else {
+                    this.textContent = 'Complete';
+                }
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const taskItem = this.closest('.task-item');
+                taskItem.remove();
+            });
+        });
+
+        // Add new task functionality
+        document.getElementById('add-task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-description').value;
+            const project = document.getElementById('task-project').value;
+            const priority = document.getElementById('task-priority').value;
+            const dueDate = document.getElementById('task-due-date').value;
+            const estimatedHours = document.getElementById('task-estimated-hours').value;
+            
+            // Create new task element
+            const taskItem = document.createElement('div');
+            taskItem.className = `task-item ${priority}-priority`;
+            
+            const dueDateFormatted = dueDate ? new Date(dueDate).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            }) : 'No due date';
+            
+            taskItem.innerHTML = `
+                <div class="task-header">
+                    <div class="task-title">${title}</div>
+                    <div class="task-actions">
+                        <button class="edit-btn">Edit</button>
+                        <button class="complete-btn">Complete</button>
+                        <button class="delete-btn">Delete</button>
+                    </div>
+                </div>
+                <div class="task-metadata">
+                    <span class="task-tag">${project}</span>
+                    <span class="task-tag">${priority.charAt(0).toUpperCase() + priority.slice(1)} Priority</span>
+                    <span class="task-tag due-date">Due: ${dueDateFormatted}</span>
+                    ${estimatedHours ? `<span class="task-tag">Est: ${estimatedHours}h</span>` : ''}
+                </div>
+                <div class="task-description">${description}</div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 0%"></div>
+                </div>
+            `;
+            
+            // Add task to list
+            const taskList = document.querySelector('.task-list');
+            taskList.prepend(taskItem);
+            
+            // Add event listeners to the new task's buttons
+            const completeBtn = taskItem.querySelector('.complete-btn');
+            completeBtn.addEventListener('click', function() {
+                taskItem.classList.toggle('completed');
+                if (taskItem.classList.contains('completed')) {
+                    this.textContent = 'Reopen';
+                } else {
+                    this.textContent = 'Complete';
+                }
+            });
+            
+            const deleteBtn = taskItem.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', function() {
+                taskItem.remove();
+            });
+            
+            // Clear form
+            this.reset();
+            
+            // Update timeline if this task has a due date
+            if (dueDate) {
+                const dueDateTime = new Date(dueDate);
+                const today = new Date();
+                
+                // If due date is within the next 7 days
+                if ((dueDateTime - today) / (1000 * 60 * 60 * 24) < 7 && dueDateTime >= today) {
+                    // Refresh timeline to include the new task
+                    generateTimeline();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
